@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--bean配置-->
+    <bean name="user" class="com.luhui1hao.beandemo.bean.User">
+        <property name="name" value="Tom"/>
+        <property name="age" value="18"/>
+    </bean>
+
+    <!--复杂数据的注入-->
+    <bean name="complexdata" class="com.luhui1hao.beandemo.bean.ComplexData">
+        <!--数组注入-->
+        <property name="names">
+            <array>
+                <value>Tom</value>
+                <value>Jerry</value>
+                <value>Sophie</value>
+            </array>
+        </property>
+        <!--List注入-->
+        <property name="list">
+            <list>
+                <value>Tom</value>
+                <value>Jerry</value>
+                <ref bean="user"/>
+            </list>
+        </property>
+        <!--Map注入-->
+        <property name="map">
+            <map>
+                <entry key="name1" value="Tom"/>
+                <entry key="name2" value="Jerry"/>
+                <entry key="user" value-ref="user"/>
+            </map>
+        </property>
+        <!--Properties的注入-->
+        <property name="properties">
+            <props>
+                <prop key="driverClass">********</prop>
+                <prop key="username">luhui1hao</prop>
+                <prop key="password">123456</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!--
+        指定扫描com.luhui1hao包下的所有注解
+        同时会扫描它下面的所有子孙包
+    -->
+    <context:component-scan base-package="com.luhui1hao"></context:component-scan>
+
+    <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
+    <!--aopdemo-->
+    <!--1.配置目标对象-->
+    <bean name="userService" class="com.luhui1hao.aopdemo.serviceImpl.UserServiceImpl"></bean>
+    <!--2.配置通知对象-->
+    <bean name="myAdvice" class="com.luhui1hao.aopdemo.advice.MyAdvice"></bean>
+    <!--3.配置将通知织入目标对象-->
+    <aop:config>
+        <!--配置切入点
+            public void com.luhui1hao.aopdemodemo.serviceImpl.UserServiceImpl.insert()
+            void com.luhui1hao.aopdemodemo.serviceImpl.UserServiceImpl.insert()
+            * com.luhui1hao.aopdemodemo.serviceImpl.UserServiceImpl.insert()
+            * com.luhui1hao.aopdemodemo.serviceImpl.UserServiceImpl.*()
+            * com.luhui1hao.aopdemodemo.serviceImpl.UserServiceImpl.*(..)
+            * com.luhui1hao.aopdemodemo.serviceImpl.*ServiceImpl.*(..)
+            * com.luhui1hao.aopdemodemo.serviceImpl..*ServiceImpl.*(..)
+        -->
+        <aop:pointcut id="pc" expression="execution(* com.luhui1hao.aopdemo.serviceImpl..*ServiceImpl.*(..))"/>
+        <aop:aspect ref="myAdvice">
+            <!--指定名为before方法作为前置通知-->
+            <aop:before method="before" pointcut-ref="pc"/>
+            <!---->
+            <aop:after-returning method="afterReturning" pointcut-ref="pc"/>
+            <!---->
+            <aop:around method="around" pointcut-ref="pc"/>
+            <!---->
+            <aop:after method="after" pointcut-ref="pc"/>
+            <!---->
+            <aop:after-throwing method="afterException" pointcut-ref="pc"/>
+        </aop:aspect>
+    </aop:config>
+
+    <aop:aspectj-autoproxy  proxy-target-class="true"/>
+
+</beans>
