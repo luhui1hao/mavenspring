@@ -4,6 +4,13 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
+    <typeAliases>
+        <!-- 批量别名定义
+        指定包名，mybatis自动扫描包中的po类，自动定义别名，别名就是类名（首字母大写或小写都可以）
+        -->
+        <package name="com.luhui1hao.mybatis"/>
+    </typeAliases>
+
     <!-- 和spring整合后 environments配置将废除 -->
     <environments default="development">
         <environment id="development">
@@ -20,9 +27,9 @@
         </environment>
     </environments>
 
-
     <!--Mapper的位置-->
     <mappers>
-        <mapper resource="mapper/User.xml"/>
+        <mapper resource="mapper/UserMapper.xml"/>
+        <mapper resource="mapper/OrderMapper.xml"/>
     </mappers>
 </configuration>

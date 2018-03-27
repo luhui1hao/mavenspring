@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- namespace：命名空间，用于隔离sql，还有一个很重要的作用，后面会讲 -->
+<mapper namespace="com.luhui1hao.mybatis.mapper.UserMapper">
+    <!--Sql中可将重复的sql提取出来，使用时用include引用即可，最终达到sql重用的目的。-->
+    <!-- 声明sql片段 -->
+    <sql id="userFields">
+        id, username, birthday, sex, address
+    </sql>
+
+    <!-- id:statement的id 或者叫做sql的id-->
+    <!-- parameterType:声明输入参数的类型 -->
+    <!-- resultType:声明输出结果的类型，应该填写pojo的全路径 -->
+    <!-- #{}：输入参数的占位符，相当于jdbc的？ -->
+    <select id="queryUserById" parameterType="int"
+            resultType="User">
+        SELECT <include refid="userFields"/> FROM `user` WHERE id  = #{id}
+    </select>
+
+    <!-- 如果返回多个结果，mybatis会自动把返回的结果放在list容器中 -->
+    <!-- resultType的配置和返回一个结果的配置一样 -->
+    <select id="queryUserByUsername1" parameterType="string"
+            resultType="User">
+        SELECT <include refid="userFields"/> FROM `user` WHERE username LIKE #{username}
+    </select>
+
+    <!-- 如果传入的参数是简单数据类型，${}里面必须写value -->
+    <select id="queryUserByUsername2" parameterType="string"
+            resultType="User">
+        SELECT <include refid="userFields"/> FROM `user` WHERE username LIKE '%${value}%'
+    </select>
+
+    <!--&lt;!&ndash; 保存用户 &ndash;&gt;-->
+    <!--<insert id="saveUser" parameterType="com.luhui1hao.mybatis.bean.User">-->
+    <!--INSERT INTO `user`-->
+    <!--(username,birthday,sex,address) VALUES-->
+    <!--(#{username},#{birthday},#{sex},#{address})-->
+    <!--</insert>-->
+
+    <!-- 保存用户 -->
+    <insert id="saveUser" parameterType="User">
+        <!-- selectKey 标签实现主键返回 -->
+        <!-- keyColumn:主键对应的表中的哪一列 -->
+        <!-- keyProperty：主键对应的pojo中的哪一个属性 -->
+        <!-- order：设置在执行insert语句前执行查询id的sql，孩纸在执行insert语句之后执行查询id的sql -->
+        <!-- resultType：设置返回的id的类型 -->
+        <selectKey keyColumn="id" keyProperty="id" order="AFTER"
+                   resultType="int">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        INSERT INTO `user`
+        (username,birthday,sex,address) VALUES
+        (#{username},#{birthday},#{sex},#{address})
+    </insert>
+
+    <!-- 更新用户 -->
+    <update id="updateUserById" parameterType="User">
+        UPDATE `user` SET
+        sex = #{sex} WHERE id = #{id}
+    </update>
+
+    <!-- 删除用户 -->
+    <delete id="deleteUserById" parameterType="int">
+        delete from user where
+        id=#{id}
+    </delete>
+
+    <!--使用包装类型查询用户-->
+    <select id="queryUserByQueryVo" parameterType="QueryVo" resultType="User">
+        SELECT * FROM user WHERE username LIKE "%${user.username}%"
+    </select>
+
+    <!--查询用户表数据条数-->
+    <select id="queryUserCount" resultType="int">
+        SELECT count(*) FROM user
+    </select>
+
+    <!-- resultMap最终还是要将结果映射到pojo上，type就是指定映射到哪一个pojo -->
+    <!-- id：设置ResultMap的id -->
+    <resultMap id="orderResultMap" type="Order">
+        <!-- 定义主键 ,非常重要。如果是多个字段,则定义多个id -->
+        <!-- property：主键在pojo中的属性名 -->
+        <!-- column：主键在数据库中的列名 -->
+        <id property="id" column="id"/>
+        <!-- 定义普通属性 -->
+        <result property="userId" column="user_id"/>
+        <result property="number" column="number"/>
+        <result property="createtime" column="createtime"/>
+        <result property="note" column="note"/>
+    </resultMap>
+    <!--查询订单表所有数据-->
+    <select id="queryOrderAll" resultType="Order">
+        SELECT id,user_id,number,createtime,note FROM orders
+    </select>
+
+    <!--根据性别和名字查询用户-->
+    <select id="queryUserByWhere" parameterType="User" resultType="User">
+        SELECT * FROM user
+        <!-- where标签可以自动添加where，同时处理sql语句中第一个and关键字 -->
+        <where>
+            <if test="sex != null and sex != ''">
+                sex = #{sex}
+            </if>
+            <if test="username != null and username != ''">
+                AND username LIKE "%${username}%"
+            </if>
+        </where>
+    </select>
+    
+    <!--根据多个id查询用户信息-->
+    <select id="queryUserByIds" parameterType="QueryVo" resultType="User">
+        SELECT * FROM user
+        <where>
+            <!-- foreach标签，进行遍历 -->
+            <!-- collection：遍历的集合，这里是QueryVo的ids属性 -->
+            <!-- item：遍历的项目，可以随便写，，但是和后面的#{}里面要一致 -->
+            <!-- open：在前面添加的sql片段 -->
+            <!-- close：在结尾处添加的sql片段 -->
+            <!-- separator：指定遍历的元素之间使用的分隔符 -->
+            <foreach collection="ids" item="item" open="id IN (" close=")" separator=",">
+                ${item}
+            </foreach>
+        </where>
+    </select>
+
+    <!--根据多个id查询用户信息之数组-->
+    <select id="queryUserByIds2" resultType="User">
+        SELECT * FROM user
+        <where>
+            <foreach collection="array" item="item" open="id IN (" close=")" separator=",">
+                ${item}
+            </foreach>
+        </where>
+    </select>
+    <!--根据多个id查询用户信息之List-->
+    <select id="queryUserByIds3" resultType="User">
+        SELECT * FROM user
+        <where>
+            <foreach collection="list" item="item" open="id IN (" close=")" separator=",">
+                ${item}
+            </foreach>
+        </where>
+    </select>
+
+</mapper>
