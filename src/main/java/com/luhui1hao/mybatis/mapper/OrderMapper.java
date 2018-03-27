@@ -2,6 +2,7 @@ package com.luhui1hao.mybatis.mapper;
 
 import com.luhui1hao.mybatis.bean.Order;
 import com.luhui1hao.mybatis.bean.OrderUser;
+import com.luhui1hao.mybatis.bean.User;
 
 import java.util.List;
 
@@ -23,4 +24,10 @@ public interface OrderMapper {
      * 因为订单关联查询用户是一对一关系，所以这里使用单个User对象存储关联查询的用户信息。
      */
     List<Order> queryOrderUserResultMap();
+
+    //一对多查询
+    /**
+     * 查询所有用户信息及用户关联的订单信息
+     */
+    List<User> queryUserOrder();
 }

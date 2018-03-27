@@ -19,20 +19,20 @@
 
     <!--查询所有订单信息，关联查询下单用户信息——方法二-->
     <resultMap id="orderUserResultMap" type="Order">
-        <id property="id" column="id" />
-        <result property="userId" column="user_id" />
-        <result property="number" column="number" />
-        <result property="createtime" column="createtime" />
-        <result property="note" column="note" />
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="number" column="number"/>
+        <result property="createtime" column="createtime"/>
+        <result property="note" column="note"/>
 
         <!-- association ：配置一对一属性 -->
         <!-- property:order里面的User属性名 -->
         <!-- javaType:属性类型 -->
         <association property="user" javaType="User">
             <!-- id:声明主键，表示user_id是关联查询对象的唯一标识-->
-            <id property="id" column="user_id" />
-            <result property="username" column="username" />
-            <result property="address" column="address" />
+            <id property="id" column="user_id"/>
+            <result property="username" column="username"/>
+            <result property="address" column="address"/>
         </association>
     </resultMap>
     <select id="queryOrderUserResultMap" resultMap="orderUserResultMap">
@@ -48,4 +48,38 @@
         LEFT JOIN user u
         ON o.user_id = u.id
     </select>
+
+    <!-- 一对多关联，查询订单同时查询该用户下的订单 -->
+    <resultMap type="user" id="userOrderResultMap">
+        <id property="id" column="id"/>
+        <result property="username" column="username"/>
+        <result property="birthday" column="birthday"/>
+        <result property="sex" column="sex"/>
+        <result property="address" column="address"/>
+
+        <!-- 配置一对多的关系 -->
+        <collection property="orders" javaType="list" ofType="order">
+            <!-- 配置主键，是关联Order的唯一标识 -->
+            <id property="id" column="oid"/>
+            <result property="number" column="number"/>
+            <result property="createtime" column="createtime"/>
+            <result property="note" column="note"/>
+        </collection>
+    </resultMap>
+    <select id="queryUserOrder" resultMap="userOrderResultMap">
+        SELECT
+        u.id,
+        u.username,
+        u.birthday,
+        u.sex,
+        u.address,
+        o.id oid,
+        o.number,
+        o.createtime,
+        o.note
+        FROM
+        user u
+        LEFT JOIN orders o ON u.id = o.user_id
+    </select>
+
 </mapper>

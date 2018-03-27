@@ -1,6 +1,7 @@
 package com.luhui1hao.mybatis.bean;
 
 import java.util.Date;
+import java.util.List;
 
 public class User {
     private int id;
@@ -8,6 +9,8 @@ public class User {
     private String sex;// 性别
     private Date birthday;// 生日
     private String address;// 地址
+
+    private List<Order> orders;
 
     public int getId() {
         return id;
@@ -49,6 +52,14 @@ public class User {
         this.address = address;
     }
 
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -57,6 +68,7 @@ public class User {
                 ", sex='" + sex + '\'' +
                 ", birthday=" + birthday +
                 ", address='" + address + '\'' +
+                ", orders=" + orders +
                 '}';
     }
 }

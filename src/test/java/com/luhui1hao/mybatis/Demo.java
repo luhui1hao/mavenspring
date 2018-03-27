@@ -310,4 +310,19 @@ public class Demo {
             System.out.println(entity);
         }
     }
+
+    /**
+     * 查询所有用户信息及用户关联的订单信息
+     */
+    @Test
+    public void testQueryUserOrder(){
+        SqlSession sqlSession = sqlSessionFactory.openSession();
+        OrderMapper mapper = sqlSession.getMapper(OrderMapper.class);
+
+        List<User> users = mapper.queryUserOrder();
+
+        for (User entity : users) {
+            System.out.println(entity);
+        }
+    }
 }
